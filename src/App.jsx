@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import './App.css'
 import Summary from './components/Summary'
 import TransactionForm from './components/TransactionForm'
@@ -17,23 +17,25 @@ function App() {
     { id: 8, description: "Netflix", amount: 15, type: "expense", category: "entertainment", date: "2025-01-10" },
   ]);
 
-  const totalIncome = transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const totalIncome = useMemo(
+    () => transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0),
+    [transactions]
+  );
 
-  const totalExpenses = transactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = useMemo(
+    () => transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0),
+    [transactions]
+  );
 
   const balance = totalIncome - totalExpenses;
 
-  const handleAdd = (transaction) => {
-    setTransactions([...transactions, transaction]);
-  };
+  const handleAdd = useCallback((transaction) => {
+    setTransactions(prev => [...prev, transaction]);
+  }, []);
 
-  const handleDelete = (id) => {
-    setTransactions(transactions.filter(t => t.id !== id));
-  };
+  const handleDelete = useCallback((id) => {
+    setTransactions(prev => prev.filter(t => t.id !== id));
+  }, []);
 
   return (
     <div className="app">
